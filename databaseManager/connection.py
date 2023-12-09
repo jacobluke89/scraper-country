@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import psycopg2
 from contextlib import contextmanager
 from psycopg2 import pool
@@ -25,3 +27,14 @@ class DBManager:
             connection.rollback()
         finally:
             self.connection_pool.putconn(connection)
+
+    def save_log(self, fn_name, err_lvl, lvl_name, info):
+        insert_query = """
+        INSERT INTO logger (function_name, date_time, error_level, level_name, info)
+        VALUES (%s, %s, %s, %s, %s)
+        """
+        current_time = datetime.now()
+        with self.get_cursor() as cursor:
+            cursor.execute(insert_query, (fn_name, current_time, err_lvl, lvl_name, info))
+
+

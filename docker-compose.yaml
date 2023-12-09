@@ -1,4 +1,4 @@
-version: '3.3'
+version: '3.8'
 services:
   postgres:
     build:
@@ -21,9 +21,9 @@ services:
       - DB_HOST=postgres
       - DB_PORT=5432
       - DB_USER=postgres
-      - PGUSER=postgres
       - DB_PASSWORD=postgres
       - DB_NAME=postgres
+      - PGUSER=postgres
     build:
       context: api
     ports:
