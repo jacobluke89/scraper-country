@@ -1,11 +1,12 @@
-from typing import Dict, Any
+from typing import Any, Dict
 
 from pandas import DataFrame
 
 from data_cleanser.scraper import get_wiki_page
 from data_cleanser.data_cleaner import data_cleaner
+from logger.logger import message_logger
 
-dict_of_urls = {
+dict_of_wiki_urls = {
     "pop_density": "https://en.wikipedia.org/wiki/List_of_countries_and_dependencies_by_population_density",
     "pop_percent": "https://en.wikipedia.org/wiki/List_of_countries_and_dependencies_by_population",
     "pop_by_age": "https://en.wikipedia.org/wiki/List_of_countries_by_age_structure",
@@ -17,7 +18,9 @@ dict_of_urls = {
 }
 
 
-def obtain_clean_data(dict_of_urls: Dict) -> dict[Any, dict[Any, DataFrame]]:
+def obtain_clean_data(dict_of_urls=None) -> Dict[Any, dict[Any, DataFrame]]:
+    if dict_of_urls is None:
+        dict_of_urls = dict_of_wiki_urls
     dict_of_df = {}
     for k, v in dict_of_urls.items():
         try:
@@ -26,6 +29,6 @@ def obtain_clean_data(dict_of_urls: Dict) -> dict[Any, dict[Any, DataFrame]]:
             df = data_cleaner(df)
             dict_of_df[k] = df
             print(f'{v} passed!')
-        except:
-            print(f'{k} failed')
+        except Exception as e:
+            message_logger(f'{k} failed, Error: {e}')
     return dict_of_df
