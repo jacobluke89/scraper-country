@@ -54,13 +54,16 @@ def setup_database(context: Context, tag: str):
 
 def teardown_database(context: Context):
     query = "SELECT current_database();"
-
-    with context.db_conn.cursor() as cursor:
-        cursor.execute(query)
-        db_name = cursor.fetchone()[0]
-        if db_name:
-            print(f'RESULT IS... {db_name}')
-
+    try:
+        with context.db_conn.cursor() as cursor:
+            cursor.execute(query)
+            db_name = cursor.fetchone()[0]
+            if not db_name:
+                print('db not found!')
+                raise
+    except AttributeError as e:
+        print(f'AttributeError: {e}')
+        return
     conn = psycopg2.connect(dbname="postgres", user=user, password=pw, host=host)
     conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
     try:
