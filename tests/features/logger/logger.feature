@@ -8,7 +8,6 @@ Feature: Database Logging System
 #    When I call save_to_db with the function name and log message
 #    Then a log entry should be saved in the database
 #    And the log level should be "INFO"
-#    Then teardown logger database
 #
   Scenario: Successfully log a message with a specified error level
     Given a function named error_function
@@ -16,7 +15,6 @@ Feature: Database Logging System
 #    When I call save_to_db with the function name, log message, and ERROR level
 #    Then a log entry should be saved in the database
 #    And the log level should be "ERROR"
-#    Then teardown logger database
 #
   Scenario: Log a message before function execution
     Given a decorated function "decoratedFunction" with a log message "Executing function"
@@ -28,4 +26,3 @@ Feature: Database Logging System
 #    When I call the error-prone function
 #    Then an error log entry should be saved in the database
 #    And the log level should be "ERROR"
-#    Then teardown logger database

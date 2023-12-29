@@ -1,7 +1,7 @@
 import inspect
 from functools import wraps
 
-from databaseManager.connection import DBManager
+from database_manager.connection import DBManager
 from utils.globals import db, user, pw, host, port
 
 class LogLevel:
