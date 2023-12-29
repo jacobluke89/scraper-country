@@ -64,6 +64,8 @@ def teardown_database(context: Context):
     except AttributeError as e:
         print(f'AttributeError: {e}')
         return
+    except Exception as e:
+        print(f'General Exception: {e}')
     conn = psycopg2.connect(dbname="postgres", user=user, password=pw, host=host)
     conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
     try:
