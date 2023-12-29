@@ -15,7 +15,19 @@ class LoggerNameLevel:
     INFO = 'info'
 
 
-def save_to_db(fun_name: str, message: str, log_level: int = LogLevel.INFO, log_level_name: str = LoggerNameLevel.INFO):
+def save_to_db(fun_name: str, message: str, log_level: int = LogLevel.INFO):
+    """
+    This function saves logs to a database.
+    :param fun_name, str: The function we're logging about
+    :param message: The message we wish to save
+    :param log_level:  The log level integer value
+    """
+    level_to_name = {
+        LogLevel.DEBUG: LoggerNameLevel.DEBUG,
+        LogLevel.ERROR: LoggerNameLevel.ERROR,
+        LogLevel.INFO: LoggerNameLevel.INFO
+    }
+    log_level_name = level_to_name.get(log_level, 'UNKNOWN LEVEL')
     db_connection = DBManager(db, user, pw, host, port)
     db_connection.save_log(fun_name, log_level, log_level_name, message)
 
@@ -31,7 +43,7 @@ def logger(message: str = ''):
                 return result
             except Exception as e:
                 exception_message = f"Exception in {func.__name__}: {str(e)}"
-                save_to_db(func.__name__, exception_message, LogLevel.ERROR, LoggerNameLevel.ERROR)
+                save_to_db(func.__name__, exception_message, LogLevel.ERROR)
                 raise
         return wrapper_logger
     return decorator_logger
