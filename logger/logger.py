@@ -90,13 +90,14 @@ def message_logger(message):
     Logs a message to the database with the name of the calling function.
 
     This function retrieves the name of the function that called `message_logger`
-    using the `inspect` module and then logs the provided message to a database
-    prefixed with "MESSAGE LOGGER:". The logging is handled by the `save_to_db`
-    function.
+    using the `inspect` module and then logs the provided message to a database.
+    The logging is handled by the `save_to_db` function.
 
     Args:
         message (str): The message to be logged.
 
+    Returns:
+        None
     """
     caller_name = inspect.currentframe().f_back.f_code.co_name
     save_to_db(caller_name, f'MESSAGE LOGGER: {message}')
