@@ -18,8 +18,8 @@ Feature: Database Logging System
 #    And the log level should be "ERROR"
 #    Then teardown logger database
 #
-#  Scenario: Log a message before function execution
-#    Given a decorated function "decoratedFunction" with a log message "Executing function"
+  Scenario: Log a message before function execution
+    Given a decorated function "decoratedFunction" with a log message "Executing function"
 #    When I call the decorated function
 #    Then a log entry with "Executing function" should be saved in the database before the function execution
 #

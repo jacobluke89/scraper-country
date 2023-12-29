@@ -21,10 +21,10 @@ def extract_tag_info(tag: str) -> Union[str, None]:
     return None
 
 def setup_database(context: Context, tag: str):
+
     os.makedirs('tmp/temporary_database', exist_ok=True)
     if not hasattr(context, 'temp_databases'):
         context.temp_databases = {}
-    print(tag)
     db_name = extract_tag_info(tag)
     unique_db_name = f"temp_{db_name}_{uuid.uuid4().hex}"
     global conn
@@ -52,8 +52,7 @@ def setup_database(context: Context, tag: str):
     # Now connect to the new test database
     context.db_conn = psycopg2.connect(dbname=unique_db_name, user=user, password=pw, host=host)
 
-def teardown_database(context: Context, tag: str):
-
+def teardown_database(context: Context):
     query = "SELECT current_database();"
 
     with context.db_conn.cursor() as cursor:
@@ -79,31 +78,14 @@ def teardown_database(context: Context, tag: str):
     finally:
         conn.close()
 
-    # print('turd')
-    # conn = None
-    # try:
-    #     conn = psycopg2.connect(user=user, password=pw, host=host)
-    #     conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
-    #     cursor = conn.cursor()
-    #     try:
-    #         cursor.execute(f"DROP DATABASE IF EXISTS {db_name}")
-    #         print(f"dropped {db_name} database")
-    #     except OperationalError as e:
-    #         print(f"Error dropping database {db_name}: {str(e)}")
-    #     finally:
-    #         cursor.close()
-    # finally:
-    #     if conn is not None:
-    #         conn.close()
 
 
 def before_tag(context: Context, tag):
-    if  re.match(r"^setup_.*_database$", tag):
-        print("Setting up database...", tag)
+    if  re.match(r'^setup_.*_database$', tag):
+        print("Setting up database...")
         setup_database(context, tag)
 
 def after_tag(context: Context, tag: str):
-    print(f' here? TAG {tag}')
-    if  re.match(r"^teardown_.*_database$", tag):
+    if  re.match(r'^teardown_.*_database$', tag):
         print("Tearing down database...")
-        teardown_database(context, tag)
+        teardown_database(context)
