@@ -27,7 +27,7 @@ def setup_database(context: Context, tag: str):
         context.temp_databases = {}
     db_name = extract_tag_info(tag)
     unique_db_name = f"temp_{db_name}_{uuid.uuid4().hex}"
-    global conn
+    conn = None
     try:
         conn = psycopg2.connect(user=user, password=pw, host=host)
         conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
@@ -84,13 +84,12 @@ def teardown_database(context: Context):
         conn.close()
 
 
-
 def before_tag(context: Context, tag):
-    if  re.match(r'^setup_.*_database$', tag):
+    if re.match(r'^setup_.*_database$', tag):
         print("Setting up database...")
         setup_database(context, tag)
 
 def after_tag(context: Context, tag: str):
-    if  re.match(r'^teardown_.*_database$', tag):
+    if re.match(r'^teardown_.*_database$', tag):
         print("Tearing down database...")
         teardown_database(context)

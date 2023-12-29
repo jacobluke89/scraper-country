@@ -21,18 +21,17 @@ run_functions_dict = {
 }
 
 @given("A function named {function_name}")
-def run_function(context : Context, function_name):
+def run_function(context: Context, function_name):
     if function_name in run_functions_dict:
         context.function = run_functions_dict[function_name]
     else:
         raise ValueError(f"Function '{function_name}' is not defined.")
 
 @given('a decorated function "{function_name}" with a log message "{log_message}"')
-def given_decorated_function_with_log_message(context, function_name, log_message):
+def given_decorated_function_with_log_message(context: Context, function_name: str, log_message: str):
     @logger(log_message)
-    def decorated_function():
-        # Function body goes here
+    def inner_decorated_function():
         pass
 
     # Store the function in the context for use in subsequent steps
-    context.function = decorated_function
+    context.function = inner_decorated_function
