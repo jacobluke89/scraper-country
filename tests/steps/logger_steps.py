@@ -67,15 +67,16 @@ def check_log_level(context: Context, level_name: str, func_name: str):
     db = get_database_name(context)
     with context.db_manager.get_cursor() as cursor:
         log_query = f"""
-        SELECT EXISTS (
-            SELECT 1
-            FROM {db}.logger
-            WHERE function_name = %s AND level_name = %s
-        );
+            SELECT EXISTS (
+                SELECT 1
+                FROM {db}.logger
+                WHERE function_name = %(func_name)s AND level_name = %(lev_name)s
+            );
         """
-        cursor.execute(log_query, (func_name, level_name))
+        params = {'func_name': func_name, 'lev_name': level_name}
+        cursor.execute(log_query, params)
         exists = cursor.fetchone()[0]
-        print('EXISTS', exists)
+
     if exists is True:
         assert True
         return
@@ -102,7 +103,6 @@ def check_log_entry_exists(db_conn: DBManager, db: str, func_name: str, message:
         """
         cursor.execute(log_query, (func_name, message))
         log_entry_exists = cursor.fetchone()[0]
-        print(f'LOG ENTRY, {log_entry_exists}')
         return log_entry_exists
     else:
         print("Log table does not exist.")

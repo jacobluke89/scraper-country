@@ -58,7 +58,6 @@ def save_to_db(fun_name: str, message: str, log_level: int = LogLevel.INFO, db_m
     Returns:
         None
     """
-    print(f'DB MANAGER IS {db_manager}')
     if db_manager is None:
         db_manager = SingleDBManager.get_instance()
 
