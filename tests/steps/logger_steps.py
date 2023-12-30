@@ -62,6 +62,7 @@ def check_for_log_entry(context: Context):
     assert log_entry_exists, "Expected log entry was not found in the database"
 
 
+
 @step('the log level should be {level_name}')
 def check_log_level(context: Context, level_name: str):
     pass
