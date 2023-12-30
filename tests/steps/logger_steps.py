@@ -1,7 +1,9 @@
-from behave import given
+from behave import given, step, when, then
 from behave.runner import Context
 
-from logger.logger import logger
+from database_manager.connection import DBManager
+from logger.logger import logger, save_to_db
+from tests.environment import get_database_name
 
 
 def successful_function():
@@ -35,3 +37,59 @@ def given_decorated_function_with_log_message(context: Context, function_name: s
 
     # Store the function in the context for use in subsequent steps
     context.function = inner_decorated_function
+
+@step('a log message "{log_message}" is prepared for logging')
+def set_log_message(context: Context, log_message: str):
+    context.log_message = log_message
+
+@when('I call save_to_db with the function name and log message')
+def save_log_message(context):
+    print(f'context.function: {context.function.__name__}')
+    function_name = context.function.__name__
+    save_to_db(function_name, context.log_message, db_manager=context.db_manager)
+
+@then('a log entry should be saved in the database')
+def check_for_log_entry(context: Context):
+
+    db_connection = context.db_manager
+    db_name = get_database_name(context)
+
+    expected_function_name = context.function.__name__
+    expected_message = context.log_message
+
+    log_entry_exists = check_log_entry_exists(db_connection, db_name,  expected_function_name, expected_message)
+
+    assert log_entry_exists, "Expected log entry was not found in the database"
+
+
+@step('the log level should be {level_name}')
+def check_log_level(context: Context, level_name: str):
+    pass
+
+def check_log_entry_exists(db_conn: DBManager, db: str, func_name: str, message: str):
+    table_exists_query = f"""
+        SELECT EXISTS (
+            SELECT 1
+            FROM information_schema.tables 
+            WHERE table_schema = %s AND table_name = 'logger'
+        );
+        """
+    with db_conn.get_cursor() as cursor:
+        cursor.execute(table_exists_query, (db,))
+        exists = cursor.fetchone()[0]
+    print('after first one, ', exists)
+    if exists:
+        log_query = f"""
+        SELECT EXISTS (
+            SELECT *
+            FROM {db}.logger
+            WHERE function_name = %s AND info = %s
+        );
+        """
+        cursor.execute(log_query, (func_name, message))
+        log_entry_exists = cursor.fetchone()[0]
+        print(f'LOG ENTRY, {log_entry_exists}')
+        return log_entry_exists
+    else:
+        print("Log table does not exist.")
+        return False

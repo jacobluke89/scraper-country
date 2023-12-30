@@ -37,7 +37,16 @@ class LoggerNameLevel:
     INFO = 'info'
 
 
-def save_to_db(fun_name: str, message: str, log_level: int = LogLevel.INFO):
+class SingleDBManager:
+    _instance = None
+
+    @classmethod
+    def get_instance(cls):
+        if cls._instance is None:
+            cls._instance = DBManager(db, user, pw, host, port)
+        return cls._instance
+
+def save_to_db(fun_name: str, message: str, log_level: int = LogLevel.INFO, db_manager: DBManager = None):
     """
     This function saves logs to a database.
 
@@ -49,14 +58,18 @@ def save_to_db(fun_name: str, message: str, log_level: int = LogLevel.INFO):
     Returns:
         None
     """
+    print(f'DB MANAGER IS {db_manager}')
+    if db_manager is None:
+        db_manager = SingleDBManager.get_instance()
+
     level_to_name = {
         LogLevel.DEBUG: LoggerNameLevel.DEBUG,
         LogLevel.ERROR: LoggerNameLevel.ERROR,
         LogLevel.INFO: LoggerNameLevel.INFO
     }
     log_level_name = level_to_name.get(log_level, 'UNKNOWN LEVEL')
-    db_connection = DBManager(db, user, pw, host, port)
-    db_connection.save_log(fun_name, log_level, log_level_name, message)
+    # db_connection = DBManager(db, user, pw, host, port)
+    db_manager.save_log(fun_name, log_level, log_level_name, message)
 
 
 def logger(message: str = ''):

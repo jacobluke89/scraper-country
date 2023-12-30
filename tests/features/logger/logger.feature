@@ -4,10 +4,10 @@ Feature: Database Logging System
 
   Scenario: Successfully log a message with default info level
     Given a function named successful_function
-#    And a log message "Test log message"
-#    When I call save_to_db with the function name and log message
-#    Then a log entry should be saved in the database
-#    And the log level should be "INFO"
+    And a log message "Test log message" is prepared for logging
+    When I call save_to_db with the function name and log message
+    Then a log entry should be saved in the database
+    And the log level should be "INFO"
 #
   Scenario: Successfully log a message with a specified error level
     Given a function named error_function
