@@ -5,13 +5,14 @@ from contextlib import contextmanager
 from psycopg2 import pool
 
 class DBManager:
-    def __init__(self, database, user, pw, host, port):
+    def __init__(self, database, user, pw, host, port=None):
         self.connection_pool = psycopg2.pool.SimpleConnectionPool(1, 10,
                                                                   database=database,
                                                                   user=user,
                                                                   password=pw,
                                                                   host=host,
                                                                   port=port)
+        self.db = database
 
     def close_all_connections(self):
         self.connection_pool.closeall()
@@ -29,8 +30,8 @@ class DBManager:
             self.connection_pool.putconn(connection)
 
     def save_log(self, fn_name, err_lvl, lvl_name, info):
-        insert_query = """
-        INSERT INTO logger (function_name, date_time, error_level, level_name, info)
+        insert_query = f"""
+        INSERT INTO {self.db}.logger(function_name, date_time, error_level, level_name, info)
         VALUES (%s, %s, %s, %s, %s)
         """
         current_time = datetime.now()
