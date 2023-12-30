@@ -7,7 +7,7 @@ Feature: Database Logging System
     And a log message "Test log message" is prepared for logging
     When I call save_to_db with the function name and log message
     Then a log entry should be saved in the database
-    And the log level should be "INFO"
+    And the log level should be "info" and function name is "success_function"
 #
   Scenario: Successfully log a message with a specified error level
     Given a function named error_function

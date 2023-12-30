@@ -62,10 +62,24 @@ def check_for_log_entry(context: Context):
     assert log_entry_exists, "Expected log entry was not found in the database"
 
 
-
-@step('the log level should be {level_name}')
-def check_log_level(context: Context, level_name: str):
-    pass
+@step('the log level should be {level_name} and function name is {func_name}')
+def check_log_level(context: Context, level_name: str, func_name: str):
+    db = get_database_name(context)
+    with context.db_manager.get_cursor() as cursor:
+        log_query = f"""
+        SELECT EXISTS (
+            SELECT 1
+            FROM {db}.logger
+            WHERE function_name = %s AND level_name = %s
+        );
+        """
+        cursor.execute(log_query, (func_name, level_name))
+        exists = cursor.fetchone()[0]
+        print('EXISTS', exists)
+    if exists is True:
+        assert True
+        return
+    assert False
 
 def check_log_entry_exists(db_conn: DBManager, db: str, func_name: str, message: str):
     table_exists_query = f"""
@@ -78,7 +92,6 @@ def check_log_entry_exists(db_conn: DBManager, db: str, func_name: str, message:
     with db_conn.get_cursor() as cursor:
         cursor.execute(table_exists_query, (db,))
         exists = cursor.fetchone()[0]
-    print('after first one, ', exists)
     if exists:
         log_query = f"""
         SELECT EXISTS (
