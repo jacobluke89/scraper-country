@@ -1,8 +1,10 @@
 import os
 import uuid
-from typing import Union
+from typing import Union, Any
 
 from behave.runner import Context
+
+from database_manager.connection import DBManager
 from utils.globals import user, pw, host
 import psycopg2
 from psycopg2.errors import DuplicateDatabase
@@ -19,6 +21,45 @@ def extract_tag_info(tag: str) -> Union[str, None]:
         return part
 
     return None
+
+def get_database_name(context: Context) -> str | None:
+    query = "SELECT current_database();"
+    try:
+        with context.db_manager.get_cursor() as cursor:
+            cursor.execute(query)
+            db_name = cursor.fetchone()[0]
+            if not db_name:
+                print('db not found!')
+                raise
+            return db_name
+    except AttributeError as e:
+        print(f'AttributeError: {e}')
+        return
+    except Exception as e:
+        print(f'General Exception: {e}')
+        return
+
+
+def create_tables(db, db_manager: DBManager):
+
+    with db_manager.get_cursor() as cursor:
+        try:
+            create_schema = f"CREATE SCHEMA IF NOT EXISTS {db};"
+            cursor.execute(create_schema)
+            logger_table = f"""
+                CREATE TABLE IF NOT EXISTS {db}.logger (
+                    id SERIAL PRIMARY KEY,
+                    function_name VARCHAR(255),
+                    date_time TIMESTAMP NOT NULL,
+                    error_level INTEGER NOT NULL,
+                    level_name VARCHAR(50) NOT NULL,
+                    info TEXT NOT NULL
+                );
+                """
+            cursor.execute(logger_table)
+            print('created tables.')
+        except Exception as e:
+            print(f'FAILED : {e}')
 
 def setup_database(context: Context, tag: str):
 
@@ -46,26 +87,15 @@ def setup_database(context: Context, tag: str):
                     print(f'Skipping {unique_db_name} database creation because it already exists..')
                 else:
                     raise
-    finally:
-        conn.close()
-
+    except Exception as e:
+        print(f'Exception raised:  {e}')
+    db_manager = DBManager(unique_db_name, user, pw, host)
+    create_tables(unique_db_name, db_manager)
     # Now connect to the new test database
-    context.db_conn = psycopg2.connect(dbname=unique_db_name, user=user, password=pw, host=host)
+    context.db_manager = db_manager
 
 def teardown_database(context: Context):
-    query = "SELECT current_database();"
-    try:
-        with context.db_conn.cursor() as cursor:
-            cursor.execute(query)
-            db_name = cursor.fetchone()[0]
-            if not db_name:
-                print('db not found!')
-                raise
-    except AttributeError as e:
-        print(f'AttributeError: {e}')
-        return
-    except Exception as e:
-        print(f'General Exception: {e}')
+    db_name = get_database_name(context)
     conn = psycopg2.connect(dbname="postgres", user=user, password=pw, host=host)
     conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
     try:
