@@ -1,6 +1,6 @@
 import os
 import uuid
-from typing import Union, Any
+from typing import Union
 
 from behave.runner import Context
 
@@ -57,7 +57,7 @@ def create_tables(db, db_manager: DBManager):
                 );
                 """
             cursor.execute(logger_table)
-            print('created tables.')
+            print('Created tables.')
         except Exception as e:
             print(f'FAILED : {e}')
 

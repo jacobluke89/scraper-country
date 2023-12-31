@@ -1,4 +1,5 @@
 GRANT ALL PRIVILEGES ON DATABASE postgres TO postgres;
+CREATE SCHEMA IF NOT EXISTS postgres;
 CREATE TABLE IF NOT EXISTS logger (
                      id SERIAL PRIMARY KEY,
                      function_name VARCHAR(255),

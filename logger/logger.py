@@ -54,9 +54,12 @@ def save_to_db(fun_name: str, message: str, log_level: int = LogLevel.INFO, db_m
         fun_name (str): The name of the function we're logging about.
         message (str): The message we wish to save.
         log_level (int, optional): The log level integer value. Defaults to LogLevel.INFO.
+        db_manager(DBManager): The DBManager allows you to connect to the database, it's created in
+        the function
 
     Returns:
         None
+
     """
     if db_manager is None:
         db_manager = SingleDBManager.get_instance()

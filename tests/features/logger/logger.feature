@@ -1,5 +1,5 @@
 @setup_logger_database
-#@teardown_logger_database
+@teardown_logger_database
 Feature: Database Logging System
 
   Scenario: Successfully log a message with default info level
