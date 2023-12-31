@@ -2,7 +2,7 @@ from behave import given, step, when, then
 from behave.runner import Context
 
 from database_manager.connection import DBManager
-from logger.logger import logger, save_to_db
+from logger.logger import logger, save_to_db, LogLevel
 from tests.environment import get_database_name
 
 
@@ -12,6 +12,9 @@ def successful_function():
 def error_function():
     pass
 
+def debug_function():
+    pass
+
 def decorated_function():
     pass
 
@@ -19,6 +22,7 @@ def decorated_function():
 run_functions_dict = {
     "successful_function": successful_function,
     "error_function": error_function,
+    "debug_function": debug_function,
     "decorated_function": decorated_function
 }
 
@@ -43,10 +47,26 @@ def set_log_message(context: Context, log_message: str):
     context.log_message = log_message
 
 @when('I call save_to_db with the function name and log message')
-def save_log_message(context):
+@when('I call save_to_db with the function name, a log message and the log level, {log_level} level')
+def save_log_message(context: Context, log_level: str = None):
+    log_level_dict = {"DEBUG": 1,
+                      "ERROR": 2,
+                      "INFO": 3}
+    log_level_int = None
+    if log_level is not None:
+        try:
+            if log_level not in log_level_dict:
+                raise ValueError(f"Key '{log_level}' not found in the dictionary")
+            log_level_int = log_level_dict.get(log_level)
+        except ValueError as e:
+            # Handle the exception
+            print(f"Error occurred: {e}")
+    if log_level_int is None:
+        log_level_int = LogLevel.INFO
+
     print(f'context.function: {context.function.__name__}')
     function_name = context.function.__name__
-    save_to_db(function_name, context.log_message, db_manager=context.db_manager)
+    save_to_db(function_name, context.log_message, log_level=log_level_int, db_manager=context.db_manager)
 
 @then('a log entry should be saved in the database')
 def check_for_log_entry(context: Context):

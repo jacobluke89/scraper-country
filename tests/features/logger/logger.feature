@@ -11,10 +11,17 @@ Feature: Database Logging System
 #
   Scenario: Successfully log a message with a specified error level
     Given a function named error_function
-#    And a log message "Error occurred"
-#    When I call save_to_db with the function name, log message, and ERROR level
-#    Then a log entry should be saved in the database
-#    And the log level should be "ERROR"
+    And a log message "Error occurred" is prepared for logging
+    When I call save_to_db with the function name, a log message and the log level, ERROR level
+    Then a log entry should be saved in the database
+    And the log level should be error and function name is error_function
+
+  Scenario: Successfully log a message with a specified error level
+    Given a function named debug_function
+    And a log message "Debugging.." is prepared for logging
+    When I call save_to_db with the function name, a log message and the log level, DEBUG level
+    Then a log entry should be saved in the database
+    And the log level should be debug and function name is debug_function
 #
   Scenario: Log a message before function execution
     Given a decorated function "decoratedFunction" with a log message "Executing function"
