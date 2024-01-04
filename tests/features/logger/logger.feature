@@ -28,8 +28,8 @@ Feature: Database Logging System
     When I call the decorated function
     Then a log entry with 'Executing function' should be saved in the database before the function execution
 #
-#  Scenario: Log an error message if an exception occurs in the decorated function
-#    Given a decorated function 'errorProneFunction' that raises an exception
+  Scenario: Log an error message if an exception occurs in the decorated function
+    Given a decorated function 'errorProneFunction' that raises an exception
 #    When I call the error-prone function
 #    Then an error log entry should be saved in the database
 #    And the log level should be 'ERROR'

@@ -15,15 +15,11 @@ def error_function():
 def debug_function():
     pass
 
-def decorated_function():
-    pass
-
 
 run_functions_dict = {
     "successful_function": successful_function,
     "error_function": error_function,
-    "debug_function": debug_function,
-    "decorated_function": decorated_function
+    "debug_function": debug_function
 }
 
 @given("A function named {function_name}")
@@ -37,10 +33,21 @@ def run_function(context: Context, function_name):
 def given_decorated_function_with_log_message(context: Context, function_name: str, log_message: str):
     @logger(log_message, context.db_manager)
     def inner_decorated_function():
-        print("called the decorated function")
+        print(f"called the decorated function, {function_name}")
         pass
 
     context.function = inner_decorated_function
+
+@given("a decorated function '{function_name}' that raises an exception")
+def given_decorated_function_with_log_message(context: Context, function_name: str):
+    @logger(f'message: {function_name}', context.db_manager)
+    def inner_exception_function():
+        try:
+            1 / 0
+        except ZeroDivisionError as e:
+            print(f'DivisionError: {e}')
+
+    context.function = inner_exception_function
 
 @step("a log message '{log_message}' is prepared for logging")
 def set_log_message(context: Context, log_message: str):
