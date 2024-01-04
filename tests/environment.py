@@ -68,7 +68,6 @@ def setup_database(context: Context, tag: str):
         context.temp_databases = {}
     db_name = extract_tag_info(tag)
     unique_db_name = f"temp_{db_name}_{uuid.uuid4().hex}"
-    conn = None
     try:
         conn = psycopg2.connect(user=user, password=pw, host=host)
         conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
