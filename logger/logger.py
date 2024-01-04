@@ -75,15 +75,16 @@ def save_to_db(fun_name: str, message: str, db_manager: DBManager, log_level: in
 
 def logger(message: str = '', db_manager: DBManager = None):
     """
-       A decorator that logs messages related to the execution of a function.
+    A decorator that logs messages related to the execution of a function.
 
-       Args:
-           message (str, optional): A message to log alongside the function's name.
+    Args:
+        message (str, optional): A message to log alongside the function's name.
                                     Defaults to an empty string.
-            db_manager (DBManager): The db manager for the logger if required.
+        db_manager (DBManager): The db manager for the logger if required.
 
-       Returns:
-           function: A decorator that takes a function and returns a wrapped function.
+    Returns:
+        function: A decorator that takes a function and returns a wrapped function.
+
 
        """
     def decorator_logger(func):
@@ -99,7 +100,7 @@ def logger(message: str = '', db_manager: DBManager = None):
                 return result
             except Exception as e:
                 exception_message = f"Exception in {func.__name__}: {str(e)}"
-                save_to_db(func.__name__, exception_message,db_manager=local_db_manager, log_level=LogLevel.ERROR)
+                save_to_db(func.__name__, exception_message, db_manager=local_db_manager, log_level=LogLevel.ERROR)
                 raise
         return wrapper_logger
     return decorator_logger

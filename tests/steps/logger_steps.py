@@ -53,7 +53,13 @@ def call_decorated_function(context: Context):
 
 
 @when("I call save_to_db with the function name and log message")
+def save_log_message_no_params(context: Context):
+    save_log_message(context)
+
 @when("I call save_to_db with the function name, a log message and the log level, {log_level} level")
+def save_log_message_with_level(context: Context, log_level):
+    save_log_message(context, log_level)
+
 def save_log_message(context: Context, log_level: str = None):
     log_level_dict = {"DEBUG": 1,
                       "ERROR": 2,
@@ -75,7 +81,12 @@ def save_log_message(context: Context, log_level: str = None):
     save_to_db(function_name, context.log_message, log_level=log_level_int, db_manager=context.db_manager)
 
 @then("a log entry should be saved in the database")
+def check_for_any_entry(context: Context):
+    check_for_log_entry(context)
 @then("a log entry with '{entry}' should be saved in the database before the function execution")
+def check_for_specific_entry(context: Context, entry: str):
+    check_for_log_entry(context, entry)
+
 def check_for_log_entry(context: Context, entry: str = ''):
 
     db_connection = context.db_manager

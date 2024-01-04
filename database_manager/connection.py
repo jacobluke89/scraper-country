@@ -37,5 +37,3 @@ class DBManager:
         current_time = datetime.now()
         with self.get_cursor() as cursor:
             cursor.execute(insert_query, (fn_name, current_time, err_lvl, lvl_name, info))
-
-
