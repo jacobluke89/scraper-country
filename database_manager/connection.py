@@ -30,6 +30,7 @@ class DBManager:
             self.connection_pool.putconn(connection)
 
     def save_log(self, fn_name, err_lvl, lvl_name, info):
+        print('DB IS ', self.db)
         insert_query = f"""
         INSERT INTO {self.db}.logger(function_name, date_time, error_level, level_name, info)
         VALUES (%s, %s, %s, %s, %s)

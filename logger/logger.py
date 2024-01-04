@@ -43,26 +43,25 @@ class SingleDBManager:
     @classmethod
     def get_instance(cls):
         if cls._instance is None:
+            print('THIS HAPPENS OH NO!')
             cls._instance = DBManager(db, user, pw, host, port)
         return cls._instance
 
-def save_to_db(fun_name: str, message: str, log_level: int = LogLevel.INFO, db_manager: DBManager = None):
+def save_to_db(fun_name: str, message: str, db_manager: DBManager, log_level: int = LogLevel.INFO):
     """
     This function saves logs to a database.
 
     Args:
         fun_name (str): The name of the function we're logging about.
         message (str): The message we wish to save.
-        log_level (int, optional): The log level integer value. Defaults to LogLevel.INFO.
         db_manager(DBManager): The DBManager allows you to connect to the database, it's created in
         the function
+        log_level (int, optional): The log level integer value. Defaults to LogLevel.INFO.
 
     Returns:
         None
 
     """
-    if db_manager is None:
-        db_manager = SingleDBManager.get_instance()
 
     level_to_name = {
         LogLevel.DEBUG: LoggerNameLevel.DEBUG,
@@ -70,31 +69,38 @@ def save_to_db(fun_name: str, message: str, log_level: int = LogLevel.INFO, db_m
         LogLevel.INFO: LoggerNameLevel.INFO
     }
     log_level_name = level_to_name.get(log_level, 'UNKNOWN LEVEL')
+    print('db manager: is ', db_manager)
     # db_connection = DBManager(db, user, pw, host, port)
     db_manager.save_log(fun_name, log_level, log_level_name, message)
 
 
-def logger(message: str = ''):
+def logger(message: str = '', db_manager: DBManager = None):
     """
        A decorator that logs messages related to the execution of a function.
 
        Args:
            message (str, optional): A message to log alongside the function's name.
                                     Defaults to an empty string.
+            db_manager (DBManager): The db manager for the logger if required.
 
        Returns:
            function: A decorator that takes a function and returns a wrapped function.
+
        """
     def decorator_logger(func):
         @wraps(func)
         def wrapper_logger(*args, **kwargs):
+            if db_manager is None:
+                local_db_manager = SingleDBManager.get_instance()
+            else:
+                local_db_manager = db_manager
             try:
-                save_to_db(func.__name__, message)
+                save_to_db(func.__name__, message, db_manager=local_db_manager)
                 result = func(*args, **kwargs)
                 return result
             except Exception as e:
                 exception_message = f"Exception in {func.__name__}: {str(e)}"
-                save_to_db(func.__name__, exception_message, LogLevel.ERROR)
+                save_to_db(func.__name__, exception_message,db_manager=local_db_manager, log_level=LogLevel.ERROR)
                 raise
         return wrapper_logger
     return decorator_logger

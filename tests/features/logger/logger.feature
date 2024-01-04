@@ -25,8 +25,8 @@ Feature: Database Logging System
 #
   Scenario: Log a message before function execution
     Given a decorated function 'decoratedFunction' with a log message 'Executing function'
-#    When I call the decorated function
-#    Then a log entry with 'Executing function' should be saved in the database before the function execution
+    When I call the decorated function
+    Then a log entry with 'Executing function' should be saved in the database before the function execution
 #
 #  Scenario: Log an error message if an exception occurs in the decorated function
 #    Given a decorated function 'errorProneFunction' that raises an exception

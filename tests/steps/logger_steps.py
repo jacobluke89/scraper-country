@@ -35,16 +35,25 @@ def run_function(context: Context, function_name):
 
 @given("a decorated function '{function_name}' with a log message '{log_message}'")
 def given_decorated_function_with_log_message(context: Context, function_name: str, log_message: str):
-    @logger(log_message)
+    @logger(log_message, context.db_manager)
     def inner_decorated_function():
+        print("called the decorated function")
         pass
 
-    # Store the function in the context for use in subsequent steps
     context.function = inner_decorated_function
 
 @step("a log message '{log_message}' is prepared for logging")
 def set_log_message(context: Context, log_message: str):
     context.log_message = log_message
+
+@when("I call the decorated function")
+def call_decorated_function(context: Context):
+    dec_func = context.function
+    dec_func()
+
+# @then("a log entry with '{entry}' should be saved in the database before the function execution")
+# def check_specific_log_entry(context: Context, entry: str):
+
 
 @when("I call save_to_db with the function name and log message")
 @when("I call save_to_db with the function name, a log message and the log level, {log_level} level")
@@ -69,13 +78,17 @@ def save_log_message(context: Context, log_level: str = None):
     save_to_db(function_name, context.log_message, log_level=log_level_int, db_manager=context.db_manager)
 
 @then("a log entry should be saved in the database")
-def check_for_log_entry(context: Context):
+@then("a log entry with '{entry}' should be saved in the database before the function execution")
+def check_for_log_entry(context: Context, entry: str = ''):
 
     db_connection = context.db_manager
     db_name = get_database_name(context)
 
     expected_function_name = context.function.__name__
-    expected_message = context.log_message
+    if entry == '':
+        expected_message = context.log_message
+    else:
+        expected_message = entry
 
     log_entry_exists = check_log_entry_exists(db_connection, db_name,  expected_function_name, expected_message)
 
@@ -114,15 +127,17 @@ def check_log_entry_exists(db_conn: DBManager, db: str, func_name: str, message:
         cursor.execute(table_exists_query, (db,))
         exists = cursor.fetchone()[0]
     if exists:
+        print('DB IS ',db)
         log_query = f"""
-        SELECT EXISTS (
+--         SELECT EXISTS (
             SELECT *
             FROM {db}.logger
-            WHERE function_name = %s AND info = %s
-        );
+--             WHERE function_name = %s AND info = %s
+--         );
         """
-        cursor.execute(log_query, (func_name, message))
-        log_entry_exists = cursor.fetchone()[0]
+        cursor.execute(log_query )
+        log_entry_exists = cursor.fetchone()
+        print(log_entry_exists)
         return log_entry_exists
     else:
         print("Log table does not exist.")

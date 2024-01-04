@@ -88,6 +88,7 @@ def setup_database(context: Context, tag: str):
                     raise
     except Exception as e:
         print(f"Exception raised:  {e}")
+    print(f'UNIQUE: {unique_db_name}')
     db_manager = DBManager(unique_db_name, user, pw, host)
     create_tables(unique_db_name, db_manager)
     # Now connect to the new test database
