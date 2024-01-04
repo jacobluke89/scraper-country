@@ -33,7 +33,7 @@ def run_function(context: Context, function_name):
     else:
         raise ValueError(f"Function '{function_name}' is not defined.")
 
-@given('a decorated function "{function_name}" with a log message "{log_message}"')
+@given("a decorated function '{function_name}' with a log message '{log_message}'")
 def given_decorated_function_with_log_message(context: Context, function_name: str, log_message: str):
     @logger(log_message)
     def inner_decorated_function():
@@ -42,12 +42,12 @@ def given_decorated_function_with_log_message(context: Context, function_name: s
     # Store the function in the context for use in subsequent steps
     context.function = inner_decorated_function
 
-@step('a log message "{log_message}" is prepared for logging')
+@step("a log message '{log_message}' is prepared for logging")
 def set_log_message(context: Context, log_message: str):
     context.log_message = log_message
 
-@when('I call save_to_db with the function name and log message')
-@when('I call save_to_db with the function name, a log message and the log level, {log_level} level')
+@when("I call save_to_db with the function name and log message")
+@when("I call save_to_db with the function name, a log message and the log level, {log_level} level")
 def save_log_message(context: Context, log_level: str = None):
     log_level_dict = {"DEBUG": 1,
                       "ERROR": 2,
@@ -64,11 +64,11 @@ def save_log_message(context: Context, log_level: str = None):
     if log_level_int is None:
         log_level_int = LogLevel.INFO
 
-    print(f'context.function: {context.function.__name__}')
+    print(f"context.function: {context.function.__name__}")
     function_name = context.function.__name__
     save_to_db(function_name, context.log_message, log_level=log_level_int, db_manager=context.db_manager)
 
-@then('a log entry should be saved in the database')
+@then("a log entry should be saved in the database")
 def check_for_log_entry(context: Context):
 
     db_connection = context.db_manager
@@ -82,7 +82,7 @@ def check_for_log_entry(context: Context):
     assert log_entry_exists, "Expected log entry was not found in the database"
 
 
-@step('the log level should be {level_name} and function name is {func_name}')
+@step("the log level should be {level_name} and function name is {func_name}")
 def check_log_level(context: Context, level_name: str, func_name: str):
     db = get_database_name(context)
     with context.db_manager.get_cursor() as cursor:
