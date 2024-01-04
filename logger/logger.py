@@ -69,8 +69,7 @@ def save_to_db(fun_name: str, message: str, db_manager: DBManager, log_level: in
         LogLevel.INFO: LoggerNameLevel.INFO
     }
     log_level_name = level_to_name.get(log_level, 'UNKNOWN LEVEL')
-    print('db manager: is ', db_manager)
-    # db_connection = DBManager(db, user, pw, host, port)
+
     db_manager.save_log(fun_name, log_level, log_level_name, message)
 
 
@@ -106,7 +105,7 @@ def logger(message: str = '', db_manager: DBManager = None):
     return decorator_logger
 
 
-def message_logger(message):
+def message_logger(message: str):
     """
     Logs a message to the database with the name of the calling function.
 
@@ -121,4 +120,4 @@ def message_logger(message):
         None
     """
     caller_name = inspect.currentframe().f_back.f_code.co_name
-    save_to_db(caller_name, f'MESSAGE LOGGER: {message}')
+    save_to_db(caller_name, f'MESSAGE LOGGER: {message}', SingleDBManager.get_instance())

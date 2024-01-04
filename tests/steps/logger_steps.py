@@ -51,9 +51,6 @@ def call_decorated_function(context: Context):
     dec_func = context.function
     dec_func()
 
-# @then("a log entry with '{entry}' should be saved in the database before the function execution")
-# def check_specific_log_entry(context: Context, entry: str):
-
 
 @when("I call save_to_db with the function name and log message")
 @when("I call save_to_db with the function name, a log message and the log level, {log_level} level")
@@ -127,17 +124,15 @@ def check_log_entry_exists(db_conn: DBManager, db: str, func_name: str, message:
         cursor.execute(table_exists_query, (db,))
         exists = cursor.fetchone()[0]
     if exists:
-        print('DB IS ',db)
         log_query = f"""
---         SELECT EXISTS (
+        SELECT EXISTS (
             SELECT *
             FROM {db}.logger
---             WHERE function_name = %s AND info = %s
---         );
+            WHERE function_name = %s AND info = %s
+        );
         """
-        cursor.execute(log_query )
+        cursor.execute(log_query, (func_name, message))
         log_entry_exists = cursor.fetchone()
-        print(log_entry_exists)
         return log_entry_exists
     else:
         print("Log table does not exist.")
