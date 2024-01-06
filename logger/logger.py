@@ -43,7 +43,6 @@ class SingleDBManager:
     @classmethod
     def get_instance(cls):
         if cls._instance is None:
-            print('THIS HAPPENS OH NO!')
             cls._instance = DBManager(db, user, pw, host, port)
         return cls._instance
 
@@ -60,7 +59,6 @@ def save_to_db(fun_name: str, message: str, db_manager: DBManager, log_level: in
 
     Returns:
         None
-
     """
 
     level_to_name = {
@@ -84,9 +82,8 @@ def logger(message: str = '', db_manager: DBManager = None):
 
     Returns:
         function: A decorator that takes a function and returns a wrapped function.
+    """
 
-
-       """
     def decorator_logger(func):
         @wraps(func)
         def wrapper_logger(*args, **kwargs):

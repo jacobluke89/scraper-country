@@ -38,17 +38,6 @@ def given_decorated_function_with_log_message(context: Context, function_name: s
 
     context.function = inner_decorated_function
 
-@given("a decorated function '{function_name}' that raises an exception")
-def given_decorated_function_with_log_message(context: Context, function_name: str):
-    @logger(f'message: {function_name}', context.db_manager)
-    def inner_exception_function():
-        try:
-            1 / 0
-        except ZeroDivisionError as e:
-            print(f'DivisionError: {e}')
-
-    context.function = inner_exception_function
-
 @step("a log message '{log_message}' is prepared for logging")
 def set_log_message(context: Context, log_message: str):
     context.log_message = log_message
@@ -90,6 +79,7 @@ def save_log_message(context: Context, log_level: str = None):
 @then("a log entry should be saved in the database")
 def check_for_any_entry(context: Context):
     check_for_log_entry(context)
+
 @then("a log entry with '{entry}' should be saved in the database before the function execution")
 def check_for_specific_entry(context: Context, entry: str):
     check_for_log_entry(context, entry)
@@ -118,11 +108,10 @@ def check_log_level(context: Context, level_name: str, func_name: str):
             SELECT EXISTS (
                 SELECT 1
                 FROM {db}.logger
-                WHERE function_name = %(func_name)s AND level_name = %(lev_name)s
+                WHERE function_name = %s AND level_name = %s
             );
         """
-        params = {'func_name': func_name, 'lev_name': level_name}
-        cursor.execute(log_query, params)
+        cursor.execute(log_query, (func_name, level_name))
         exists = cursor.fetchone()[0]
 
     if exists is True:
