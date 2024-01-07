@@ -6,6 +6,7 @@ from tests.environment import get_database_name
 
 @when("I call the decorated function")
 @when("I call the message function")
+@when("I call the exception function")
 def call_function(context: Context):
     func = context.function
     func()

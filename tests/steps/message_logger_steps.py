@@ -13,6 +13,17 @@ def function_calls_message_logger(context: Context, calling_function: str, speci
     message_call()
     context.function = message_call
 
+@given("a function that raises an exception")
+def exception_message_logger(context: Context):
+
+    def div_zero_function():
+        try:
+            1/0
+        except ZeroDivisionError as e:
+            message_logger(f"Exception:{e}", 2, context.db_manager)
+
+    context.function = div_zero_function
+
 @then("a log entry with '{message}' should be saved in the database")
 def check_message_log(context: Context, message: str):
     db_conn = context.db_manager
