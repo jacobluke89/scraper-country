@@ -30,18 +30,20 @@ class LogLevel:
     DEBUG = 1
     ERROR = 2
     INFO = 3
+    MESSAGE = 4
 
 class LoggerNameLevel:
     DEBUG = 'debug'
     ERROR = 'error'
     INFO = 'info'
+    MESSAGE = 'message'
 
 
 class SingleDBManager:
     _instance = None
 
     @classmethod
-    def get_instance(cls):
+    def get_instance(cls) -> DBManager:
         if cls._instance is None:
             cls._instance = DBManager(db, user, pw, host, port)
         return cls._instance
@@ -64,7 +66,8 @@ def save_to_db(fun_name: str, message: str, db_manager: DBManager, log_level: in
     level_to_name = {
         LogLevel.DEBUG: LoggerNameLevel.DEBUG,
         LogLevel.ERROR: LoggerNameLevel.ERROR,
-        LogLevel.INFO: LoggerNameLevel.INFO
+        LogLevel.INFO: LoggerNameLevel.INFO,
+        LogLevel.MESSAGE: LoggerNameLevel.MESSAGE
     }
     log_level_name = level_to_name.get(log_level, 'UNKNOWN LEVEL')
 
@@ -103,7 +106,9 @@ def logger(message: str = '', db_manager: DBManager = None):
     return decorator_logger
 
 
-def message_logger(message: str):
+def message_logger(message: str,
+                   message_level: int,
+                   db_manager: DBManager = SingleDBManager.get_instance()):
     """
     Logs a message to the database with the name of the calling function.
 
@@ -113,9 +118,11 @@ def message_logger(message: str):
 
     Args:
         message (str): The message to be logged.
+        message_level (int): should be an integer from the enum class LogLevel.
+        db_manager (SingleDBManager): DBManager instance
 
     Returns:
         None
     """
     caller_name = inspect.currentframe().f_back.f_code.co_name
-    save_to_db(caller_name, f'MESSAGE LOGGER: {message}', SingleDBManager.get_instance())
+    save_to_db(caller_name, f'MESSAGE LOGGER: {message}', db_manager, log_level=message_level)
