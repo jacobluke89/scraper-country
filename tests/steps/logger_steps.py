@@ -4,6 +4,7 @@ from behave.runner import Context
 from database_manager.connection import DBManager
 from logger.logger import logger, save_to_db, LogLevel
 from tests.environment import get_database_name
+from common import table_exists_check
 
 
 def successful_function():
@@ -41,12 +42,6 @@ def given_decorated_function_with_log_message(context: Context, function_name: s
 @step("a log message '{log_message}' is prepared for logging")
 def set_log_message(context: Context, log_message: str):
     context.log_message = log_message
-
-@when("I call the decorated function")
-def call_decorated_function(context: Context):
-    dec_func = context.function
-    dec_func()
-
 
 @when("I call save_to_db with the function name and log message")
 def save_log_message_no_params(context: Context):
@@ -100,36 +95,8 @@ def check_for_log_entry(context: Context, entry: str = ''):
     assert log_entry_exists, "Expected log entry was not found in the database"
 
 
-@step("the log level should be {level_name} and function name is {func_name}")
-def check_log_level(context: Context, level_name: str, func_name: str):
-    db = get_database_name(context)
-    with context.db_manager.get_cursor() as cursor:
-        log_query = f"""
-            SELECT EXISTS (
-                SELECT 1
-                FROM {db}.logger
-                WHERE function_name = %s AND level_name = %s
-            );
-        """
-        cursor.execute(log_query, (func_name, level_name))
-        exists = cursor.fetchone()[0]
-
-    if exists is True:
-        assert True
-        return
-    assert False
-
 def check_log_entry_exists(db_conn: DBManager, db: str, func_name: str, message: str):
-    table_exists_query = f"""
-        SELECT EXISTS (
-            SELECT 1
-            FROM information_schema.tables 
-            WHERE table_schema = %s AND table_name = 'logger'
-        );
-        """
-    with db_conn.get_cursor() as cursor:
-        cursor.execute(table_exists_query, (db,))
-        exists = cursor.fetchone()[0]
+    cursor, exists = table_exists_check(db_conn, db, 'logger')
     if exists:
         log_query = f"""
         SELECT EXISTS (
